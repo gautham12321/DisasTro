@@ -33,6 +33,7 @@
     <ul id="allocations"></ul>
 
     <script>
+        window.onload = fetchAllocations;
         let map;
         function initMap() {
             map = new google.maps.Map(document.getElementById('map'), {
@@ -86,8 +87,22 @@
         function removeRequest(button) {
             button.parentElement.remove();
         }
+    function fetchAllocations() {
+    fetch('/session_allocations')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("allocations").innerHTML = '';
+            data.forEach(alloc => {
+                let li = document.createElement("li");
+                li.textContent = `${alloc.allocated_units} of ${alloc.resource} from ${alloc.hub} to ${alloc.allocated_to}`;
+                document.getElementById("allocations").appendChild(li);
+            });
+        });
+}
 
         function sendRequests() {
+            localStorage.setItem("reloadPage2","true");
+            console.log(localStorage.getItem("reloadPage2"))
             const requests = [];
             document.querySelectorAll(".request").forEach(request => {
                 const name = request.querySelector(".camp-name").value;
@@ -118,7 +133,10 @@
                     document.getElementById("allocations").appendChild(li);
                 });
             });
+        
+
         }
+        
     </script>
 </body>
 </html>

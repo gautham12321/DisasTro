@@ -58,6 +58,12 @@
     </div>
 
     <script>
+        setInterval(function(){
+            if(localStorage.getItem("reloadPage2")=="true"){
+                console.log("OKDAAAAA");
+                localStorage.removeItem("reloadPage2");
+                location.reload();
+            }},1000);
         function initMap() {
             let map = new google.maps.Map(document.getElementById("map"), {
                 center: { lat: 20.5937, lng: 78.9629 }, // Centered around India
@@ -109,6 +115,7 @@
                     tableBody.innerHTML += row;
                 });
             });
+            
         }
     </script>
 </body>

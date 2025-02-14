@@ -7,10 +7,10 @@
                 77.5946
             ],
             "resources": {
-                "water": 300,
+                "water": 0,
                 "food": 0,
-                "medicine": 100,
-                "blankets": 150
+                "medicine": 0,
+                "blankets": 0
             }
         },
         {
@@ -22,8 +22,8 @@
             "resources": {
                 "water": 0,
                 "food": 0,
-                "medicine": 180,
-                "blankets": 100
+                "medicine": 0,
+                "blankets": 0
             }
         },
         {
@@ -33,10 +33,10 @@
                 77.58
             ],
             "resources": {
-                "water": 500,
+                "water": 0,
                 "food": 0,
-                "medicine": 210,
-                "blankets": 170
+                "medicine": 82,
+                "blankets": 0
             }
         }
     ],
@@ -67,6 +67,55 @@
                     "hub": "Hub A",
                     "allocated_units": 200,
                     "status": "Allocated"
+                },
+                {
+                    "resource": "blankets",
+                    "allocated_to": "Camp X",
+                    "hub": "Hub A",
+                    "allocated_units": 100,
+                    "status": "Allocated"
+                },
+                {
+                    "resource": "blankets",
+                    "allocated_to": "Camp X",
+                    "hub": "Hub A",
+                    "allocated_units": 50,
+                    "status": "Allocated"
+                },
+                {
+                    "resource": "blankets",
+                    "allocated_to": "Camp X",
+                    "hub": "Hub B",
+                    "allocated_units": 50,
+                    "status": "Allocated"
+                },
+                {
+                    "resource": "blankets",
+                    "allocated_to": "Camp X",
+                    "hub": "Hub B",
+                    "allocated_units": 50,
+                    "status": "Allocated"
+                },
+                {
+                    "resource": "blankets",
+                    "allocated_to": "Camp X",
+                    "hub": "Hub C",
+                    "allocated_units": 150,
+                    "status": "Allocated"
+                },
+                {
+                    "resource": "blankets",
+                    "allocated_to": "Camp X",
+                    "hub": "Hub C",
+                    "allocated_units": 20,
+                    "status": "Allocated"
+                },
+                {
+                    "resource": "blankets",
+                    "allocated_to": "Camp X",
+                    "hub": "N/A",
+                    "allocated_units": "Not fully allocated",
+                    "status": "Pending"
                 }
             ]
         },
