@@ -1,26 +1,105 @@
 {
     "hubs": [
         {
-            "name": "Hub X",
-            "location": [12.9716, 77.5946],
+            "name": "Hub A",
+            "location": [
+                12.9716,
+                77.5946
+            ],
             "resources": {
-                "food": 100,
-                "water": 50
+                "water": 500,
+                "food": 0,
+                "medicine": 200,
+                "blankets": 150
             }
         },
         {
-            "name": "Hub Y",
-            "location": [13.0000, 77.6000],
+            "name": "Hub B",
+            "location": [
+                12.985,
+                77.6
+            ],
             "resources": {
-                "food": 100,
-                "water": 75
+                "water": 400,
+                "food": 0,
+                "medicine": 180,
+                "blankets": 100
+            }
+        },
+        {
+            "name": "Hub C",
+            "location": [
+                12.96,
+                77.58
+            ],
+            "resources": {
+                "water": 600,
+                "food": 270,
+                "medicine": 210,
+                "blankets": 170
             }
         }
     ],
     "relief_camps": [
         {
-            "name": "Camp A",
-            "location": [12.9800, 77.5950]
+            "name": "Camp X",
+            "location": [
+                12.98,
+                77.595
+            ],
+            "population": {
+                "children": 100,
+                "women": 150,
+                "men": 180,
+                "elderly": 70
+            },
+            "severity": 3,
+            "needs": {
+                "water": 300,
+                "food": 250,
+                "medicine": 120,
+                "blankets": 80
+            }
+        },
+        {
+            "name": "Camp Y",
+            "location": [
+                12.97,
+                77.59
+            ],
+            "population": {
+                "children": 80,
+                "women": 130,
+                "men": 160,
+                "elderly": 60
+            },
+            "severity": 2,
+            "needs": {
+                "water": 200,
+                "food": 200,
+                "medicine": 100,
+                "blankets": 60
+            }
+        },
+        {
+            "name": "Camp Z",
+            "location": [
+                12.95,
+                77.575
+            ],
+            "population": {
+                "children": 90,
+                "women": 140,
+                "men": 170,
+                "elderly": 65
+            },
+            "severity": 4,
+            "needs": {
+                "water": 400,
+                "food": 300,
+                "medicine": 150,
+                "blankets": 90
+            }
         }
     ]
 }

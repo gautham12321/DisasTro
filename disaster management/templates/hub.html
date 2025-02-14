@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disaster Relief Hub</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBwTqwZ9kqCtAeKaRgqsI0U8AtvVrtiuHA&callback=initMap" defer></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .blue-marker {
+            background-color: blue;
+        }
+        .red-marker {
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Relief Hub Management</h1>
+        <div id="map"></div>
+        <h2>Hub Resources</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Hub Name</th>
+                    <th>Resource</th>
+                    <th>Available Units</th>
+                </tr>
+            </thead>
+            <tbody id="hub-resources">
+                <!-- Filled dynamically -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function initMap() {
+            let map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 20.5937, lng: 78.9629 }, // Centered around India
+                zoom: 5,
+            });
+
+            $.getJSON("/hubs.json", function(data) {
+                data.hubs.forEach(function(hub) {
+                    let marker = new google.maps.Marker({
+                        position: { lat: hub.location[0], lng: hub.location[1] },
+                        map: map,
+                        title: hub.name,
+                        icon: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                    });
+
+                    marker.addListener("click", function() {
+                        alert(`Hub: ${hub.name}\nResources: ${JSON.stringify(hub.resources)}`);
+                    });
+                });
+
+                data.relief_camps.forEach(function(camp) {
+                    let marker = new google.maps.Marker({
+                        position: { lat: camp.location[0], lng: camp.location[1] },
+                        map: map,
+                        title: camp.name,
+                        icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                    });
+
+                    marker.addListener("click", function() {
+                        alert(`Relief Camp: ${camp.name}\nNeeds: ${JSON.stringify(camp.requests)}`);
+                    });
+                });
+
+                updateHubResources(data.hubs);
+            });
+        }
+
+        function updateHubResources(hubs) {
+            let tableBody = document.getElementById("hub-resources");
+            tableBody.innerHTML = "";
+
+            hubs.forEach((hub) => {
+                Object.entries(hub.resources).forEach(([resource, units]) => {
+                    let row = `<tr>
+                        <td>${hub.name}</td>
+                        <td>${resource}</td>
+                        <td>${units}</td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                });
+            });
+        }
+    </script>
+</body>
+</html>

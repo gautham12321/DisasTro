@@ -3,154 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Disaster Relief Allocation</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <title>Relief Camp Requests</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBwTqwZ9kqCtAeKaRgqsI0U8AtvVrtiuHA&callback=initMap" async defer></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f4f9ff; }
-        h2 { color: #0044cc; }
-        input, button { margin: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ddd; }
-        button { background-color: #007bff; color: white; cursor: pointer; }
-        table { margin: auto; border-collapse: collapse; width: 80%; background: white; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
-        #map { height: 300px; width: 100%; margin: auto; border-radius: 10px; }
-        .container { max-width: 1000px; margin: 0 auto; }
-        @media (max-width: 768px) {
-            .container { width: 100%; padding: 10px; }
-        }
+        #map { height: 400px; width: 100%; }
     </style>
 </head>
 <body>
-
-    <div class="container">
-        <h2>Disaster Relief Supply Allocation</h2>
-        <div id="map"></div>
-
-        <h3>Resource Requests</h3>
-        <table id="requestsTable">
-            <tr>
-                <th>Resource</th>
-                <th>Units</th>
-                <th>Action</th>
-            </tr>
-        </table>
-        <button onclick="addRequest()">Add Request</button>
-        <button onclick="submitRequests()">Submit Requests</button>
-        <button onclick="clearResults()">Clear Results</button>
-
-        <h3>Allocation Results</h3>
-        <table id="resultTable">
-            <tr>
-                <th>Resource</th>
-                <th>Allocated To</th>
-                <th>Hub</th>
-                <th>Allocated Units</th>
-                <th>Status</th>
-            </tr>
-        </table>
-    </div>
-
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <h1>Relief Camp Resource Request</h1>
+    <label for="camp-name">Relief Camp Name:</label>
+    <input type="text" id="camp-name" placeholder="Enter camp name">
+    <br>
+    <label for="resource">Resource:</label>
+    <input type="text" id="resource" placeholder="Enter resource">
+    <br>
+    <label for="units">Units Needed:</label>
+    <input type="number" id="units" min="1" placeholder="Enter units">
+    <br>
+    <button onclick="sendRequest()">Send Request</button>
+    
+    <div id="map"></div>
+    <h2>Allocations</h2>
+    <ul id="allocations"></ul>
+    
     <script>
-        let userLocation = [12.9716, 77.5946];
-
-        // Initialize the map
-        let map = L.map('map').setView(userLocation, 10);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-        // User Location Marker (Home Icon)
-        let homeIcon = L.icon({
-            iconUrl: 'https://img.icons8.com/ios/452/home.png',
-            iconSize: [32, 32],
-            iconAnchor: [16, 32],
-            popupAnchor: [0, -32]
-        });
-
-        L.marker(userLocation, { icon: homeIcon }).addTo(map).bindPopup("User Location");
-
-        // Relief Camp Icon
-        let campIcon = L.icon({
-            iconUrl: 'https://img.icons8.com/ios/452/marker.png',
-            iconSize: [32, 32],
-            iconAnchor: [16, 32],
-            popupAnchor: [0, -32]
-        });
-
-        let reliefCamps = [
-            { name: "Camp A", location: [12.9800, 77.5950] }
-        ];
-
-        reliefCamps.forEach(camp => {
-            L.marker(camp.location, { icon: campIcon }).addTo(map)
-                .bindPopup(`<b>${camp.name}</b>`);
-        });
-
-        // Custom Red Marker for Hubs
-        let hubIcon = L.icon({
-            iconUrl: 'https://img.icons8.com/fluency/48/000000/marker.png', // Red Marker Icon
-            iconSize: [32, 32],
-            iconAnchor: [16, 32],
-            popupAnchor: [0, -32]
-        });
-
-        // Sample Hubs (Replace with Actual Data)
-        let hubs = [
-            { name: "Hub X", location: [12.9716, 77.5946] },
-            { name: "Hub Y", location: [13.0000, 77.6000] }
-        ];
-
-        hubs.forEach(hub => {
-            L.marker(hub.location, { icon: hubIcon }).addTo(map)
-                .bindPopup(`<b>${hub.name}</b>`);
-        });
-
-        function addRequest() {
-            let table = document.getElementById("requestsTable");
-            let row = table.insertRow(-1);
-            row.innerHTML = `<td><input type="text" placeholder="Resource"></td>
-                             <td><input type="number" placeholder="Units"></td>
-                             <td><button onclick="removeRow(this)">Remove</button></td>`;
+        let map;
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 20.5937, lng: 78.9629 },
+                zoom: 5
+            });
+            
+            fetch('/hubs.json')
+                .then(response => response.json())
+                .then(data => {
+                    data.relief_camps.forEach(camp => {
+                        new google.maps.Marker({
+                            position: { lat: camp.location[0], lng: camp.location[1] },
+                            map,
+                            title: camp.name,
+                            icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+                        });
+                    });
+                    
+                    data.hubs.forEach(hub => {
+                        new google.maps.Marker({
+                            position: { lat: hub.location[0], lng: hub.location[1] },
+                            map,
+                            title: hub.name,
+                            icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                        });
+                    });
+                });
         }
-
-        function removeRow(btn) {
-            btn.parentNode.parentNode.remove();
-        }
-
-        function submitRequests() {
-            let rows = document.querySelectorAll("#requestsTable tr");
-            let requests = [];
-            for (let i = 1; i < rows.length; i++) {
-                let resource = rows[i].cells[0].querySelector("input").value;
-                let units = parseInt(rows[i].cells[1].querySelector("input").value);
-                if (resource && units) {
-                    requests.push({ resource, units });
-                }
+        
+        function sendRequest() {
+            const name = document.getElementById("camp-name").value;
+            const resource = document.getElementById("resource").value;
+            const units = parseInt(document.getElementById("units").value);
+            
+            if (!name || !resource || isNaN(units) || units <= 0) {
+                alert("Please enter valid details.");
+                return;
             }
-
-            fetch("/allocate", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ location: userLocation, requests })
+            
+            fetch('/allocate_hub', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    relief_camp: name,
+                    requests: [{ resource, units, priority: 'men', time_since_last_request: 0 }]
+                })
             })
             .then(response => response.json())
-            .then(data => displayResults(data));
-        }
-
-        function displayResults(data) {
-            let table = document.getElementById("resultTable");
-            table.innerHTML = `<tr><th>Resource</th><th>Allocated To</th><th>Hub</th><th>Allocated Units</th><th>Status</th></tr>`;
-            data.forEach(result => {
-                table.insertRow(-1).innerHTML = `<td>${result.resource}</td>
-                                                 <td>${result.allocated_to}</td>
-                                                 <td>${result.hub}</td>
-                                                 <td>${result.allocated_units}</td>
-                                                 <td>${result.allocated_units === 'Not fully allocated' ? 'Not enough resources' : 'Allocated'}</td>`;
+            .then(data => {
+                document.getElementById("allocations").innerHTML = '';
+                data.forEach(alloc => {
+                    let li = document.createElement("li");
+                    li.textContent = `${alloc.allocated_units} of ${alloc.resource} from ${alloc.hub}`;
+                    document.getElementById("allocations").appendChild(li);
+                });
             });
         }
-
-        function clearResults() {
-            document.getElementById("resultTable").innerHTML = "";
-        }
     </script>
-
 </body>
 </html>
