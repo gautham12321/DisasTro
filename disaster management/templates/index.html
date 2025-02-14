@@ -12,21 +12,26 @@
 </head>
 <body>
     <h1>Relief Camp Resource Request</h1>
-    <label for="camp-name">Relief Camp Name:</label>
-    <input type="text" id="camp-name" placeholder="Enter camp name">
-    <br>
-    <label for="resource">Resource:</label>
-    <input type="text" id="resource" placeholder="Enter resource">
-    <br>
-    <label for="units">Units Needed:</label>
-    <input type="number" id="units" min="1" placeholder="Enter units">
-    <br>
-    <button onclick="sendRequest()">Send Request</button>
-    
+    <div id="requests-container">
+        <div class="request">
+            <label for="camp-name">Relief Camp Name:</label>
+            <input type="text" class="camp-name" placeholder="Enter camp name">
+            <br>
+            <label for="resource">Resource:</label>
+            <input type="text" class="resource" placeholder="Enter resource">
+            <br>
+            <label for="units">Units Needed:</label>
+            <input type="number" class="units" min="1" placeholder="Enter units">
+            <br>
+        </div>
+    </div>
+    <button onclick="addRequest()">Add Another Request</button>
+    <button onclick="sendRequests()">Send Requests</button>
+
     <div id="map"></div>
     <h2>Allocations</h2>
     <ul id="allocations"></ul>
-    
+
     <script>
         let map;
         function initMap() {
@@ -34,7 +39,7 @@
                 center: { lat: 20.5937, lng: 78.9629 },
                 zoom: 5
             });
-            
+
             fetch('/hubs.json')
                 .then(response => response.json())
                 .then(data => {
@@ -46,7 +51,7 @@
                             icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
                         });
                     });
-                    
+
                     data.hubs.forEach(hub => {
                         new google.maps.Marker({
                             position: { lat: hub.location[0], lng: hub.location[1] },
@@ -57,31 +62,59 @@
                     });
                 });
         }
-        
-        function sendRequest() {
-            const name = document.getElementById("camp-name").value;
-            const resource = document.getElementById("resource").value;
-            const units = parseInt(document.getElementById("units").value);
-            
-            if (!name || !resource || isNaN(units) || units <= 0) {
-                alert("Please enter valid details.");
+
+        function addRequest() {
+            const container = document.getElementById("requests-container");
+            const newRequest = document.createElement("div");
+            newRequest.classList.add("request");
+            newRequest.innerHTML = `
+                <br>
+                <label>Relief Camp Name:</label>
+                <input type="text" class="camp-name" placeholder="Enter camp name">
+                <br>
+                <label>Resource:</label>
+                <input type="text" class="resource" placeholder="Enter resource">
+                <br>
+                <label>Units Needed:</label>
+                <input type="number" class="units" min="1" placeholder="Enter units">
+                <br>
+                <button onclick="removeRequest(this)">Remove</button>
+            `;
+            container.appendChild(newRequest);
+        }
+
+        function removeRequest(button) {
+            button.parentElement.remove();
+        }
+
+        function sendRequests() {
+            const requests = [];
+            document.querySelectorAll(".request").forEach(request => {
+                const name = request.querySelector(".camp-name").value;
+                const resource = request.querySelector(".resource").value;
+                const units = parseInt(request.querySelector(".units").value);
+
+                if (name && resource && !isNaN(units) && units > 0) {
+                    requests.push({ relief_camp: name, resource, units, priority: 'men', time_since_last_request: 0 });
+                }
+            });
+
+            if (requests.length === 0) {
+                alert("Please enter at least one valid request.");
                 return;
             }
-            
+
             fetch('/allocate_hub', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    relief_camp: name,
-                    requests: [{ resource, units, priority: 'men', time_since_last_request: 0 }]
-                })
+                body: JSON.stringify({ requests })
             })
             .then(response => response.json())
             .then(data => {
                 document.getElementById("allocations").innerHTML = '';
                 data.forEach(alloc => {
                     let li = document.createElement("li");
-                    li.textContent = `${alloc.allocated_units} of ${alloc.resource} from ${alloc.hub}`;
+                    li.textContent = `${alloc.allocated_units} of ${alloc.resource} from ${alloc.hub} to ${alloc.allocated_to}`;
                     document.getElementById("allocations").appendChild(li);
                 });
             });

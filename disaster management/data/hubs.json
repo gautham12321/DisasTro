@@ -7,9 +7,9 @@
                 77.5946
             ],
             "resources": {
-                "water": 500,
+                "water": 300,
                 "food": 0,
-                "medicine": 200,
+                "medicine": 100,
                 "blankets": 150
             }
         },
@@ -20,7 +20,7 @@
                 77.6
             ],
             "resources": {
-                "water": 400,
+                "water": 0,
                 "food": 0,
                 "medicine": 180,
                 "blankets": 100
@@ -33,8 +33,8 @@
                 77.58
             ],
             "resources": {
-                "water": 600,
-                "food": 270,
+                "water": 500,
+                "food": 0,
                 "medicine": 210,
                 "blankets": 170
             }
@@ -59,7 +59,16 @@
                 "food": 250,
                 "medicine": 120,
                 "blankets": 80
-            }
+            },
+            "allocations": [
+                {
+                    "resource": "water",
+                    "allocated_to": "Camp X",
+                    "hub": "Hub A",
+                    "allocated_units": 200,
+                    "status": "Allocated"
+                }
+            ]
         },
         {
             "name": "Camp Y",
@@ -79,7 +88,49 @@
                 "food": 200,
                 "medicine": 100,
                 "blankets": 60
-            }
+            },
+            "allocations": [
+                {
+                    "resource": "food",
+                    "allocated_to": "Camp Y",
+                    "hub": "Hub C",
+                    "allocated_units": 100,
+                    "status": "Allocated"
+                },
+                {
+                    "resource": "medicine",
+                    "allocated_to": "Camp Y",
+                    "hub": "Hub A",
+                    "allocated_units": 100,
+                    "status": "Allocated"
+                },
+                {
+                    "resource": "food",
+                    "allocated_to": "Camp Y",
+                    "hub": "Hub C",
+                    "allocated_units": 170
+                },
+                {
+                    "resource": "food",
+                    "allocated_to": "Camp Y",
+                    "hub": "N/A",
+                    "allocated_units": "Not fully allocated"
+                },
+                {
+                    "resource": "water",
+                    "allocated_to": "Camp Y",
+                    "hub": "Hub B",
+                    "allocated_units": 400,
+                    "status": "Allocated"
+                },
+                {
+                    "resource": "water",
+                    "allocated_to": "Camp Y",
+                    "hub": "Hub C",
+                    "allocated_units": 100,
+                    "status": "Allocated"
+                }
+            ]
         },
         {
             "name": "Camp Z",

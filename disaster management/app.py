@@ -192,4 +192,77 @@ def allocate_to_hub():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True)@app.route('/allocate_hub', methods=['POST'])
+def allocate_to_hubs():
+    try:
+        data = load_data()
+        HUBS, RELIEF_CAMPS = data["hubs"], data["relief_camps"]
+
+        req_data = request.json
+        relief_camp_requests = req_data.get("requests", [])
+
+        if not relief_camp_requests:
+            return jsonify({"error": "Invalid request data"}), 400
+
+        priority_order = {"children": 1, "elderly": 2, "women": 3, "men": 4}
+        relief_camp_requests.sort(
+            key=lambda req: (
+                priority_order.get(req.get("priority", "men"), 4),
+                -req.get("time_since_last_request", 0)
+            )
+        )
+
+        allocations = []
+        hub_index = 0
+
+        for req in relief_camp_requests:
+            resource = req.get("resource")
+            units_needed = req.get("units")
+            relief_camp_name = req.get("relief_camp")
+
+            if not resource or not isinstance(units_needed, int) or units_needed <= 0:
+                continue
+
+            for _ in range(len(HUBS)):
+                hub = HUBS[hub_index]
+                hub_index = (hub_index + 1) % len(HUBS)
+
+                available_units = hub["resources"].get(resource, 0)
+                if available_units > 0:
+                    alloc_units = min(units_needed, available_units)
+                    units_needed -= alloc_units
+                    hub["resources"][resource] -= alloc_units
+
+                    allocations.append({
+                        "resource": resource,
+                        "allocated_to": relief_camp_name,
+                        "hub": hub["name"],
+                        "allocated_units": alloc_units,
+                        "status": "Allocated"
+                    })
+
+                if units_needed <= 0:
+                    break
+
+            if units_needed > 0:
+                allocations.append({
+                    "resource": resource,
+                    "allocated_to": relief_camp_name,
+                    "hub": "N/A",
+                    "allocated_units": "Not fully allocated",
+                    "status": "Pending"
+                })
+
+        for camp in RELIEF_CAMPS:
+            for alloc in allocations:
+                if camp["name"] == alloc["allocated_to"]:
+                    if "allocations" not in camp:
+                        camp["allocations"] = []
+                    camp["allocations"].append(alloc)
+
+        save_data({"hubs": HUBS, "relief_camps": RELIEF_CAMPS})
+
+        return jsonify(allocations)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
