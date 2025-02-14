@@ -1,0 +1,26 @@
+{
+    "hubs": [
+        {
+            "name": "Hub X",
+            "location": [12.9716, 77.5946],
+            "resources": {
+                "food": 100,
+                "water": 50
+            }
+        },
+        {
+            "name": "Hub Y",
+            "location": [13.0000, 77.6000],
+            "resources": {
+                "food": 100,
+                "water": 75
+            }
+        }
+    ],
+    "relief_camps": [
+        {
+            "name": "Camp A",
+            "location": [12.9800, 77.5950]
+        }
+    ]
+}

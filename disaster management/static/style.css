@@ -1,0 +1,57 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+    background-color: #f4f9ff;
+}
+
+h2 {
+    color: #0044cc;
+}
+
+input,
+button {
+    margin: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+table {
+    margin: auto;
+    border-collapse: collapse;
+    width: 80%;
+    background: white;
+}
+
+th,
+td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+#map {
+    height: 300px;
+    width: 100%;
+    margin: auto;
+    border-radius: 10px;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .container {
+        width: 100%;
+        padding: 10px;
+    }
+}
