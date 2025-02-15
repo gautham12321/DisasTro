@@ -3,140 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relief Camp Requests</title>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBwTqwZ9kqCtAeKaRgqsI0U8AtvVrtiuHA&callback=initMap" async defer></script>
+    <title>HUB Interface</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        #map { height: 400px; width: 100%; }
+       body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+        #map {
+            height: 85vh;
+            width: 80vw;
+            border-radius: 23px;
+            border: 5px solid black;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .container2 {
+            display: flex;
+        }
+        .header {
+            height: 10vh;
+            background: white;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .sidebar {
+            height: 85vh;
+            background: white;
+            color: black;
+            width: 230px;
+            padding: 15px 10px;
+        }
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .sidebar li {
+            margin: 15px 0;
+        }
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .info-panel {
+            width: 250px;
+            height: 350px;
+            background: #fff;
+            padding: 15px;
+            position: fixed;
+            bottom: 20px; 
+            right: 10%;
+            transform: translateY(-10%);
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            z-index: 1000; 
+            display: none;
+        }
+        .l1{
+            margin-right: 48px;
+            font-family: "Michroma";
+            font-weight: bold;
+            font-size: 48px;
+            letter-spacing: 4px;
+
+        }
+        .r1{
+            margin-left: 48px;
+            font-family: "Michroma";
+            font-weight: bold;
+            font-size: 48px;
+            letter-spacing: 8px;
+        }
+        ul{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: right;
+            margin-left: 15%;
+            margin-top: 50%;
+        }
+        .michroma-regular {
+            font-family: "Michroma", serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+        .sidebar li{
+            font-family: "Michroma";
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .sidebar li:hover{
+            font-size: 24px;
+        }
+
     </style>
 </head>
 <body>
-    <h1>Relief Camp Resource Request</h1>
-    <div id="requests-container">
-        <div class="request">
-            <label for="camp-name">Relief Camp Name:</label>
-            <input type="text" class="camp-name" placeholder="Enter camp name">
-            <br>
-            <label for="resource">Resource:</label>
-            <input type="text" class="resource" placeholder="Enter resource">
-            <br>
-            <label for="units">Units Needed:</label>
-            <input type="number" class="units" min="1" placeholder="Enter units">
-            <br>
+    <div class="container">
+        <div class="header">
+            <h1 class="r1">HUB</h1>
+            <h2 class="l1">AidLink</h2>
+        </div>
+        <div class="container2">
+            <div class="sidebar">
+                <ul>
+                    <li>Home</li>
+                    <li>Inventory</li>
+                    <li>Live Tracker</li>
+                    <li>Settings</li>
+                    <li>Help</li>
+                </ul>
+            </div>
+            <div class="main-content">
+                <div id="map"></div>
+                <div class="info-panel">
+                </div>
+            </div>
         </div>
     </div>
-    <button onclick="addRequest()">Add Another Request</button>
-    <button onclick="sendRequests()">Send Requests</button>
-
-    <div id="map"></div>
-    <h2>Allocations</h2>
-    <ul id="allocations"></ul>
-
+    
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const infoPanel = document.querySelector(".info-panel");
+    
+            document.querySelector(".sidebar li:nth-child(1)").addEventListener("click", function() {
+                infoPanel.style.display = "none"; 
+            });
+    
+            document.querySelector(".sidebar li:nth-child(2)").addEventListener("click", function() {
+                fetch('/get_inventory')
+                    .then(response => response.json())
+                    .then(data => {
+                        infoPanel.innerHTML = `
+                            <h3>Current Inventory</h3>
+                            <div style="border-bottom: 1px solid black; margin-bottom: 10px; padding-bottom: 10px;">
+                                <p>Food: ${data.food} units</p>
+                                <p>Water: ${data.water} units</p>
+                                <p>Medicine: ${data.medicine} units</p>
+                            </div>
+                            <h3>Update Inventory</h3>
+                            <label>Food:</label>
+                            <input type="number" id="food" min="0" placeholder="Enter units"><br>
+                            <label>Water:</label>
+                            <input type="number" id="water" min="0" placeholder="Enter units"><br>
+                            <label>Medicine:</label>
+                            <input type="number" id="medicine" min="0" placeholder="Enter units"><br>
+                            <button onclick="updateInventory()">Submit</button>
+                        `;
+                        infoPanel.style.display = "block";
+                    })
+                    .catch(error => console.error("Error fetching inventory:", error));
+            });
+        });
+    
+        function updateInventory() {
+            const food = parseInt(document.getElementById("food").value) || 0;
+            const water = parseInt(document.getElementById("water").value) || 0;
+            const medicine = parseInt(document.getElementById("medicine").value) || 0;
+    
+            const inventoryUpdate = {
+                "hub_name": "Hub A",
+                "resources": {
+                    "food": food,
+                    "water": water,
+                    "medicine": medicine
+                },
+                "update_type": "add"
+            };
+    
+            fetch('/update_inventory', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(inventoryUpdate)
+            })
+            .then(response => response.json())
+            .then(data => alert("Inventory Updated Successfully!"))
+            .catch(error => console.error("Error updating inventory:", error));
+        }
+    
         window.onload = fetchAllocations;
         let map;
+    
         function initMap() {
-            map = new google.maps.Map(document.getElementById('map'), {
-                center: { lat: 20.5937, lng: 78.9629 },
-                zoom: 5
-            });
-
+            map = L.map('map').setView([12.9716, 77.5946], 15);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+            
             fetch('/hubs.json')
                 .then(response => response.json())
                 .then(data => {
                     data.relief_camps.forEach(camp => {
-                        new google.maps.Marker({
-                            position: { lat: camp.location[0], lng: camp.location[1] },
-                            map,
-                            title: camp.name,
-                            icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
-                        });
+                        L.marker([camp.location[0], camp.location[1]], {
+                            icon: L.icon({ iconUrl: '/static/hub.png', iconSize: [89, 89] })
+                        }).addTo(map).bindPopup(camp.name);
                     });
-
+    
                     data.hubs.forEach(hub => {
-                        new google.maps.Marker({
-                            position: { lat: hub.location[0], lng: hub.location[1] },
-                            map,
-                            title: hub.name,
-                            icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
-                        });
+                        L.marker([hub.location[0], hub.location[1]], {
+                            icon: L.icon({ iconUrl: '/static/camp.png', iconSize: [89, 89] })
+                        }).addTo(map).bindPopup(hub.name);
                     });
-                });
+                })
+                .catch(error => console.error("Error fetching hub data:", error));
         }
-
-        function addRequest() {
-            const container = document.getElementById("requests-container");
-            const newRequest = document.createElement("div");
-            newRequest.classList.add("request");
-            newRequest.innerHTML = `
-                <br>
-                <label>Relief Camp Name:</label>
-                <input type="text" class="camp-name" placeholder="Enter camp name">
-                <br>
-                <label>Resource:</label>
-                <input type="text" class="resource" placeholder="Enter resource">
-                <br>
-                <label>Units Needed:</label>
-                <input type="number" class="units" min="1" placeholder="Enter units">
-                <br>
-                <button onclick="removeRequest(this)">Remove</button>
-            `;
-            container.appendChild(newRequest);
+    
+        function fetchAllocations() {
+            fetch('/session_allocations')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("allocations").innerHTML = '';
+                    data.forEach(alloc => {
+                        let li = document.createElement("li");
+                        li.textContent = `${alloc.allocated_units} of ${alloc.resource} from ${alloc.hub} to ${alloc.allocated_to}`;
+                        document.getElementById("allocations").appendChild(li);
+                    });
+                })
+                .catch(error => console.error("Error fetching allocations:", error));
         }
-
-        function removeRequest(button) {
-            button.parentElement.remove();
-        }
-    function fetchAllocations() {
-    fetch('/session_allocations')
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById("allocations").innerHTML = '';
-            data.forEach(alloc => {
-                let li = document.createElement("li");
-                li.textContent = `${alloc.allocated_units} of ${alloc.resource} from ${alloc.hub} to ${alloc.allocated_to}`;
-                document.getElementById("allocations").appendChild(li);
-            });
-        });
-}
-
-        function sendRequests() {
-            localStorage.setItem("reloadPage2","true");
-            console.log(localStorage.getItem("reloadPage2"))
-            const requests = [];
-            document.querySelectorAll(".request").forEach(request => {
-                const name = request.querySelector(".camp-name").value;
-                const resource = request.querySelector(".resource").value;
-                const units = parseInt(request.querySelector(".units").value);
-
-                if (name && resource && !isNaN(units) && units > 0) {
-                    requests.push({ relief_camp: name, resource, units, priority: 'men', time_since_last_request: 0 });
-                }
-            });
-
-            if (requests.length === 0) {
-                alert("Please enter at least one valid request.");
-                return;
-            }
-
-            fetch('/allocate_hub', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ requests })
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("allocations").innerHTML = '';
-                data.forEach(alloc => {
-                    let li = document.createElement("li");
-                    li.textContent = `${alloc.allocated_units} of ${alloc.resource} from ${alloc.hub} to ${alloc.allocated_to}`;
-                    document.getElementById("allocations").appendChild(li);
-                });
-            });
-        
-
-        }
-        
+    
+        document.addEventListener("DOMContentLoaded", initMap);
     </script>
+    
 </body>
 </html>
