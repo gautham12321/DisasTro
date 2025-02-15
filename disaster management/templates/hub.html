@@ -1,122 +1,393 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Disaster Relief Hub</title>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBwTqwZ9kqCtAeKaRgqsI0U8AtvVrtiuHA&callback=initMap" defer></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
-        #map {
-            height: 500px;
-            width: 100%;
-        }
-        .container {
-            max-width: 800px;
-            margin: auto;
-            padding: 20px;
-            text-align: center;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .blue-marker {
-            background-color: blue;
-        }
-        .red-marker {
-            background-color: red;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HUB Interface</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f0f0;
+    }
+    #map {
+      height: 85vh;
+      width: 80vw;
+      border-radius: 23px;
+      border: 5px solid black;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    .container2 {
+      display: flex;
+    }
+    .header {
+      height: 10vh;
+      background: white;
+      text-align: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .sidebar {
+      height: 85vh;
+      background: white;
+      color: black;
+      width: 230px;
+      padding: 15px 10px;
+    }
+    .sidebar ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    .sidebar li {
+      margin: 15px 0;
+    }
+    .main-content {
+      flex-grow: 1;
+      display: flex;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .info-panel {
+      width: 250px;
+      height: 350px;
+      background: #fff;
+      padding: 15px;
+      position: fixed;
+      bottom: 20px;
+      right: 10%;
+      transform: translateY(-10%);
+      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      z-index: 1000;
+      display: none;
+    }
+    .l1 {
+      margin-right: 48px;
+      font-family: "Michroma";
+      font-weight: bold;
+      font-size: 48px;
+      letter-spacing: 4px;
+    }
+    .r1 {
+      margin-left: 24px;
+      font-family: "Michroma";
+      font-weight: bold;
+      font-size: 48px;
+      letter-spacing: 8px;
+    }
+    ul {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: right;
+      margin-left: 15%;
+      margin-top: 50%;
+    }
+    .michroma-regular {
+      font-family: "Michroma", serif;
+      font-weight: 400;
+      font-style: normal;
+    }
+    .sidebar li {
+      font-family: "Michroma";
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .sidebar li:hover {
+      font-size: 24px;
+    }
+
+    .info-panel h3 {
+      font-family: "Michroma", sans-serif;
+      font-size: 20px;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .info-panel label {
+      font-family: "Michroma", sans-serif;
+      font-size: 16px;
+      display: block;
+      margin: 8px 0 4px;
+      color: #333;
+    }
+    .info-panel input {
+      width: 90%;
+      padding: 8px;
+      border: 2px solid #000;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      font-family: "Michroma", sans-serif;
+    }
+    .info-panel input:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+    .info-panel button {
+      width: 100%;
+      padding: 10px;
+      background-color: black;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      font-family: "Michroma", sans-serif;
+      margin-top: 12px;
+    }
+    .info-panel button:hover {
+      background-color: #444;
+    }
+    .info-panel {
+        overflow-y: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none; 
+    }
+
+    .info-panel::-webkit-scrollbar {
+        display: none;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Relief Hub Management</h1>
-        <div id="map"></div>
-        <h2>Hub Resources</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Hub Name</th>
-                    <th>Resource</th>
-                    <th>Available Units</th>
-                </tr>
-            </thead>
-            <tbody id="hub-resources">
-                <!-- Filled dynamically -->
-            </tbody>
-        </table>
+  <div class="container">
+    <div class="header">
+      <h1 class="r1">CAMP-A</h1>
+      <h2 class="l1">AidLink</h2>
     </div>
+    <div class="container2">
+      <div class="sidebar">
+        <ul>
+          <li>Home</li>
+          <li>Requests</li>
+          <li>Live Tracker</li>
+          <li>Updates</li>
+          <li>Settings</li>
+          <li>Help</li>
+        </ul>
+      </div>
+      <div class="main-content">
+        <div id="map"></div>
+        <div class="info-panel"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const infoPanel = document.querySelector(".info-panel");
+      
+      document.querySelector(".sidebar li:nth-child(1)").addEventListener("click", function() {
+        infoPanel.style.display = "none";
+      });
 
-    <script>
-        setInterval(function(){
-            if(localStorage.getItem("reloadPage2")=="true"){
-                console.log("OKDAAAAA");
-                localStorage.removeItem("reloadPage2");
-                location.reload();
-            }},1000);
-        function initMap() {
-            let map = new google.maps.Map(document.getElementById("map"), {
-                center: { lat: 20.5937, lng: 78.9629 }, // Centered around India
-                zoom: 5,
+      document.querySelector(".sidebar li:nth-child(4)").addEventListener("click", function() {
+        infoPanel.innerHTML = `
+            <h3 style="width: 100%; text-align: center; font-size: 24px; font-weight: bold; font-family: 'Michroma', sans-serif; margin: 8px 0; letter-spacing: 4px; border-bottom: 2px solid black; padding-bottom: 10px;">
+                DELIVERIES
+            </h3>
+            <div id="allocations" style="padding: 10px; max-height: 250px; overflow-y: auto;">
+            </div>
+        `;
+        infoPanel.style.display = "block";
+        fetchAllocations();
+    });
+
+    function fetchAllocations() {
+    fetch('/session_allocations')
+        .then(response => response.json())
+        .then(data => {
+            const allocationsDiv = document.getElementById("allocations");
+            allocationsDiv.innerHTML = ''; 
+
+            if (data.length === 0) {
+                allocationsDiv.innerHTML = '<p style="text-align: center; font-family: Michroma, sans-serif;">No deliveries found.</p>';
+                return;
+            }
+
+            data.forEach(alloc => {
+                if (alloc.status.toLowerCase() === "allocated") {
+                    imageSrc = "/static/tick.png";
+                } else if (alloc.status.toLowerCase() === "pending") {
+                    imageSrc = "/static/excl.png";
+                } else if (alloc.status.toLowerCase() === "delivering") {
+                    imageSrc = "/static/truck.png";
+                }
+
+
+                let allocContainer = document.createElement("div");
+                allocContainer.style.display = "flex";
+                allocContainer.style.flexDirection = "row";
+                allocContainer.style.justifyContent = "space-between";
+                allocContainer.style.alignItems = "center";
+                allocContainer.style.marginBottom = "32px";
+                allocContainer.style.fontFamily = "'Michroma', sans-serif";
+                allocContainer.style.overflow = "hidden"; 
+                allocContainer.style.scrollbarWidth = "none"; 
+                allocContainer.style.msOverflowStyle = "none"; 
+
+                let infoContainer = document.createElement("div");
+                infoContainer.style.display = "flex";
+                infoContainer.style.flexDirection = "column";
+
+                let capitalizedResource = alloc.resource.charAt(0).toUpperCase() + alloc.resource.slice(1);
+
+     
+                infoContainer.innerHTML = `
+                    <p style="font-size: 20px; font-weight: bold; margin: 0;">${alloc.hub}</p>
+                    <p style="font-size: 12px; margin: 0;">${capitalizedResource}: ${alloc.allocated_units}</p>
+                `;
+
+ 
+                let imageContainer = document.createElement("div");
+                let image = document.createElement("img");
+                image.src = imageSrc;
+                image.alt = "Status Image";
+                image.style.width = "50px";
+                image.style.height = "50px";
+
+                imageContainer.appendChild(image);
+
+                allocContainer.appendChild(infoContainer);
+                allocContainer.appendChild(imageContainer);
+
+  
+                allocationsDiv.appendChild(allocContainer);
             });
+        })
+        .catch(error => {
+            console.error("Error fetching allocations:", error);
+            document.getElementById("allocations").innerHTML = '<p style="color: red; text-align: center;">Failed to load deliveries.</p>';
+        });
+}
 
-            $.getJSON("/hubs.json", function(data) {
-                data.hubs.forEach(function(hub) {
-                    let marker = new google.maps.Marker({
-                        position: { lat: hub.location[0], lng: hub.location[1] },
-                        map: map,
-                        title: hub.name,
-                        icon: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
-                    });
 
-                    marker.addListener("click", function() {
-                        alert(`Hub: ${hub.name}\nResources: ${JSON.stringify(hub.resources)}`);
-                    });
-                });
 
-                data.relief_camps.forEach(function(camp) {
-                    let marker = new google.maps.Marker({
-                        position: { lat: camp.location[0], lng: camp.location[1] },
-                        map: map,
-                        title: camp.name,
-                        icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-                    });
 
-                    marker.addListener("click", function() {
-                        alert(`Relief Camp: ${camp.name}\nNeeds: ${JSON.stringify(camp.requests)}`);
-                    });
-                });
+      
 
-                updateHubResources(data.hubs);
+      document.querySelector(".sidebar li:nth-child(2)").addEventListener("click", function() {
+        infoPanel.innerHTML = `
+          <h3>Request Resources</h3>
+          <label>Water:</label>
+          <input type="number" id="water" min="0" placeholder="Enter units"><br>
+          <label>Medicine:</label>
+          <input type="number" id="medicine" min="0" placeholder="Enter units"><br>
+          <label>Food:</label>
+          <input type="number" id="food" min="0" placeholder="Enter units"><br>
+          <button onclick="submitRequest()">Submit</button>
+        `;
+        infoPanel.style.display = "block";
+      });
+    });
+    
+    function submitRequest() {
+        const water = parseInt(document.getElementById("water").value) || 0;
+        const medicine = parseInt(document.getElementById("medicine").value) || 0;
+        const food = parseInt(document.getElementById("food").value) || 0;
+
+        const requestData = {
+            "requests": []
+        };
+
+        if (water > 0) {
+            requestData.requests.push({
+            "resource": "water",
+            "units": water,
+            "relief_camp": "Camp A",
+            "priority": "children",
+            "time_since_last_request": 10
             });
         }
 
-        function updateHubResources(hubs) {
-            let tableBody = document.getElementById("hub-resources");
-            tableBody.innerHTML = "";
-
-            hubs.forEach((hub) => {
-                Object.entries(hub.resources).forEach(([resource, units]) => {
-                    let row = `<tr>
-                        <td>${hub.name}</td>
-                        <td>${resource}</td>
-                        <td>${units}</td>
-                    </tr>`;
-                    tableBody.innerHTML += row;
-                });
+        if (medicine > 0) {
+            requestData.requests.push({
+            "resource": "medicine",
+            "units": medicine,
+            "relief_camp": "Camp A",
+            "priority": "elderly",
+            "time_since_last_request": 15
             });
-            
         }
-    </script>
+
+        if (food > 0) {
+            requestData.requests.push({
+            "resource": "food",
+            "units": food,
+            "relief_camp": "Camp A",
+            "priority": "women",
+            "time_since_last_request": 20
+            });
+        }
+
+        fetch('/allocate_hub', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert("Request Sent Successfully!");
+            document.querySelector(".info-panel").style.display = "none";
+        })
+        .catch(error => console.error("Error:", error));
+    }
+    
+    window.onload = fetchAllocations;
+    let map;
+    
+    function initMap() {
+      map = L.map('map').setView([12.9716, 77.5946], 15);
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+      
+      fetch('/hubs.json')
+        .then(response => response.json())
+        .then(data => {
+          data.relief_camps.forEach(camp => {
+            L.marker([camp.location[0], camp.location[1]], {
+              icon: L.icon({ iconUrl: '/static/camp.png', iconSize: [89, 89] })
+            }).addTo(map).bindPopup(camp.name);
+          });
+    
+          data.hubs.forEach(hub => {
+            L.marker([hub.location[0], hub.location[1]], {
+              icon: L.icon({ iconUrl: '/static/hub.png', iconSize: [89, 89] })
+            }).addTo(map).bindPopup(hub.name);
+          });
+        })
+        .catch(error => console.error("Error fetching hub data:", error));
+    }
+    
+    function fetchAllocations() {
+      fetch('/session_allocations')
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("allocations").innerHTML = '';
+          data.forEach(alloc => {
+            let li = document.createElement("li");
+            li.textContent = `${alloc.allocated_units} of ${alloc.resource} from ${alloc.hub} to ${alloc.allocated_to}`;
+            document.getElementById("allocations").appendChild(li);
+          });
+        })
+        .catch(error => console.error("Error fetching allocations:", error));
+    }
+    
+    document.addEventListener("DOMContentLoaded", initMap);
+  </script>
 </body>
 </html>
